@@ -1,77 +1,53 @@
-var config = require('webpack-es6-config');
-var path = require("path");
+let config = require('webpack-es6-config');
+let Webpack = require('webpack');
+var path = require('path');
+var nodeModulesPath = path.resolve(__dirname, 'node_modules');
+var buildPath = path.resolve(__dirname, 'dist', 'main.jsx');
+var mainPath = path.resolve(__dirname, 'src', 'main.jsx');
 
-<<<<<<< HEAD
+
 module.exports = config({
-  	filename: 'main.jsx',
-  	libraryName: 'BotbyScreen',
-  	entry: './src/main.jsx',
-  	output: {
-    	path: path.resolve(__dirname, "build"),
-    	publicPath: "/assets/",
-    	filename: "bundle.js"
-  	},
-  	module: {
-        loaders: [{
-            test: /\.js$/,
-            exclude: /node_modules/,
-            loader: 'babel-loader',
-            query: {
-                    presets: ['es2015', 'react']
-            }
-        }]
-   }
-});
-=======
-module.exports = {
-	entry: "./entry.js",
-	output: {
-		path: __dirname,
-		filename: "bundle.js"
-	},
-	module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: "babel",
-        include: __dirname,
-        query: {
-          presets: [ 'es2015', 'react', 'react-hmre' ]
-        }
+  // Makes sure errors in console map to the correct file
+  // and line number
+  devtool: 'eval',
+  entry: [
+
+  // For hot style updates
+  'webpack/hot/dev-server',
+
+  // The script refreshing the browser on none hot updates
+  'webpack-dev-server/client?http://localhost:8080',
+
+  // Our application
+  mainPath],
+  output: {
+
+  // We need to give Webpack a path. It does not actually need it,
+  // because files are kept in memory in webpack-dev-server, but an
+  // error will occur if nothing is specified. We use the buildPath
+  // as that points to where the files will eventually be bundled
+  // in production
+  path: buildPath,
+  filename: 'main.jsx',
+
+  // Everything related to Webpack should go through a build path,
+  // localhost:3000/build. That makes proxying easier to handle
+  publicPath: '/build/'
+  }, 
+  module: {
+      loaders: [{
+          test: /\.js$/,
+          exclude: [nodeModulesPath],
+          loader: 'babel-loader',
+          query: {
+                  presets: ['es2015', 'react', 'react-hmre']
+          }
       },
       {
         test: /\.scss$/,
         loaders: ["style", "css", "sass"]
       }
-    ]
+      ]
   },
-	/*
-	module: {
-		loaders: [
-			{
-  				test: require.resolve('react'),
-  				loader: 'expose?React'
-			},
-			{
-				test: /\.jsx?$/,
-      			// Enable caching for improved performance during development
-      			// It uses default OS directory by default. If you need
-      			// something more custom, pass a path to it.
-      			// I.e., babel?cacheDirectory=<path>
-      			loaders: ['babel?cacheDirectory'],
-      			// Parse only app files! Without this it will go through
-      			// the entire project. In addition to being slow,
-      			// that will most likely result in an error.
-      			// include: PATHS.app
-			}
-		]
-	},*/
-	resolve: {
-  		alias: {
-    		'react': 'react-lite',
-    		'react-dom': 'react-lite'
-  		}
-	},
-};
->>>>>>> 0d91a0f935d5e6a9f30820fea5221f903fa169e4
+  plugins: [new Webpack.HotModuleReplacementPlugin()]
+});
